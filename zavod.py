@@ -55,8 +55,8 @@ class AutoClickerApp:
         self.root.title("Автокликер для Telegram")
 
         self.devices = [
-            {"host": "192.168.1.184", "port": 5555},
-            # {"host": "192.168.1.102", "port": 5555},
+            {"host": "192.168.10.121", "port": 5555},
+             {"host": "192.168.10.123", "port": 5555},
             # Добавьте остальные устройства здесь
         ]
 
@@ -125,16 +125,28 @@ class AutoClickerApp:
         if device is None:
             return
 
+        # TODO: массив с координатами для рандомного нажатия
+        # collect_button = [(190, 730), (200, 730), (220, 730)]  # Координаты для кнопки ЗАБРАТЬ
+
         while self.running:
             current_time = time.strftime("%H:%M")
             if params["work_start"] <= current_time <= params["work_end"]:
+                # Открытие Телеграм
+                device.shell('am start -n org.telegram.messenger/org.telegram.ui.LaunchActivity')
+                time.sleep(5)
+                tap(device, 1015, 138)  # Координаты для кнопки поиск
+                time.sleep(3)
+                device.shell('input text "MDAO Telegram Wallet"')
+                time.sleep(3)
+                tap(device, 482, 526)  # Открытие первого результата в поиске
                 # Нажатие на кнопку для открытия мини-приложения в боте
                 tap(device, 787, 2081)  # Пример координат кнопки внутри бота
 
                 time.sleep(random_delay(params["delay_min"], params["delay_max"]))  # Ожидание
 
                 # Нажатие на кнопку "ЗАБРАТЬ"
-                button_x, button_y = 190, 730  # Пример координат кнопки "ЗАБРАТЬ"
+                button_x, button_y = 190, 730  # Пример координат кнопки "ЗАБРАТЬ"   # TODO: массив с координатами
+                                                                                # TODO: для рандомного нажатия  Вставить сюда
                 tap(device, button_x, button_y)
 
                 # Рандомная задержка
@@ -154,9 +166,13 @@ class AutoClickerApp:
                 time.sleep(random_delay(params["delay_min"], params["delay_max"]))
 
                 # Выход из мини-приложения и Telegram
-                device.shell('input keyevent 4')  # Нажатие кнопки "Назад"
+                device.shell('input keyevent 4')  # Нажатие кнопки "Назад" выход из Верстака
                 time.sleep(1)
-                device.shell('input keyevent 4')  # Нажатие кнопки "Назад"
+                device.shell('input keyevent 4')  # Нажатие кнопки "Назад" выход из завода
+                time.sleep(1)
+                device.shell('input keyevent 4')  # Нажатие кнопки "Назад" выход из чата
+                time.sleep(1)
+                device.shell('input keyevent 4')  # Еще одно нажатие "Назад" для выхода из Телеграм
                 # device.shell('input keyevent 4')  # Еще раз нажатие кнопки "Назад" для выхода из Telegram
 
                 # Повтор через каждые 2 часа + рандомная задержка 15-20 минут
