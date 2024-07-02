@@ -58,7 +58,8 @@ class AutoClickerApp:
         self.stop_button = tk.Button(self.root, text="Остановить", command=self.stop_autoclicker)
         self.stop_button.pack(pady=10)
 
-
+        self.next_run_delay_label = tk.Label(self.root, text="Следующий пуск: N/A") # Следующий пуск
+        self.next_run_delay_label.pack(side=tk.LEFT, padx=10, pady=10)
 
     def add_device(self):
         device_id = self.device_id_entry.get()
@@ -92,9 +93,14 @@ class AutoClickerApp:
             self.threads.append(t)
             t.start()
 
-
     def stop_autoclicker(self):
         self.running = False
         for t in self.threads:
             t.join()
         self.threads = []
+
+    def update_next_run_delay(self, delay):
+        hours, remainder = divmod(delay, 3600)
+        minutes, seconds = divmod(remainder, 60)
+
+        self.next_run_delay_label.config(text=f"Следующий пуск: {int(hours)}ч {int(minutes)}м {int(seconds)}с")
