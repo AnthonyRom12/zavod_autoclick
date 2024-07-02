@@ -89,7 +89,7 @@ class AutoClickerApp:
         self.threads = []
 
         for device, params in zip(self.devices, self.device_params):
-            t = Thread(target=run_autoclicker, args=(params, self))  #, params
+            t = Thread(target=run_autoclicker, args=(params, self))
             self.threads.append(t)
             t.start()
 

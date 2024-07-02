@@ -1,9 +1,16 @@
 """Координаты кнопок для каждого устройтва индивидуальны."""
-
+import random
 import time
 from adb_function import connect_device, tap
 from device_params import random_delay
 import subprocess
+
+# координаты кнопки "ЗАБРАТЬ"
+coordinates = [(259, 561), (262, 550), (250, 560), (245, 555), (248, 564)]
+
+
+def get_random_coordinates():
+    return random.choice(coordinates)
 
 
 def run_autoclicker(params, app):
@@ -25,7 +32,7 @@ def run_autoclicker(params, app):
             # time.sleep(5)  # Ожидание открытия приложения
 
             # Найти и открыть чат с ботом
-            tap(serial_number, 1004, 109)  # Координаты поля поиска
+            tap(serial_number, 681, 121)  # Координаты поля поиска (1004, 109)
             if not wait_and_check(app, 3):
                 break
             # time.sleep(3)
@@ -36,37 +43,37 @@ def run_autoclicker(params, app):
                 break
             # time.sleep(3)
 
-            tap(serial_number, 322, 526)  # Координаты первого результата в поиске
+            tap(serial_number, 201, 233)  # Координаты первого результата в поиске
             if not wait_and_check(app, 3):
                 break
             # time.sleep(3)
 
             # Нажатие на кнопку для открытия мини приложения в боте
-            tap(serial_number, 787, 2081)  # координаты кнопки внутри бота
+            tap(serial_number, 406, 1390)  # координаты кнопки внутри бота
             if not wait_and_check(app, random_delay(params["delay_min"], params["delay_max"])):
                 break
             # time.sleep(random_delay(params["delay_min"], params["delay_max"]))  # Рандомное ожидание
 
             # Нажатие на кнопку "ЗАБРАТЬ"
-            button_x, button_y = 375, 810  # координаты кнопки "ЗАБРАТЬ"
+            button_x, button_y = get_random_coordinates()  # координаты кнопки "ЗАБРАТЬ"
             tap(serial_number, button_x, button_y)
             if not wait_and_check(app, random_delay(params["delay_min"], params["delay_max"])):
                 break
             # time.sleep(random_delay(params["delay_min"], params["delay_max"]))  # Рандомное ожидание
 
             # Верстак
-            verstak_button_x, verstak_button_y = 609, 1920  # Координаты кнопки верстака
+            verstak_button_x, verstak_button_y = 409, 1327  # Координаты кнопки верстака
             tap(serial_number, verstak_button_x, verstak_button_y)
             if not wait_and_check(app, random_delay(params["delay_min"], params["delay_max"])):
                 break
             # time.sleep(random_delay(params["delay_min"], params["delay_max"]))
 
-            verstak_upgrade_button_x, verstak_upgrade_button_y = 430, 2116  # Координаты кнопки повышение уровня
+            verstak_upgrade_button_x, verstak_upgrade_button_y = 246, 1390  # Координаты кнопки повышение уровня
             tap(serial_number, verstak_upgrade_button_x, verstak_upgrade_button_y)
             if not wait_and_check(app, random_delay(params["delay_min"], params["delay_max"])):
                 break
 
-            confirm_upgrade_x, confirm_upgrade_y = 326, 1712
+            confirm_upgrade_x, confirm_upgrade_y = 300, 650
             tap(serial_number, confirm_upgrade_x, confirm_upgrade_y)  # Подтвердить увеличение уровня
             if not wait_and_check(app, random_delay(params["delay_min"], params["delay_max"])):
                 break
