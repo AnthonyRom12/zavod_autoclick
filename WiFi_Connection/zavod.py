@@ -33,8 +33,8 @@ def random_delay(min_val, max_val):
 
 
 def generate_device_params():
-    delay_min = random.randint(2, 5)
-    delay_max = random.randint(5, 10)
+    delay_min = random.randint(8, 10)
+    delay_max = random.randint(10, 15)
     start_delay_min = random.randint(10, 15)
     start_delay_max = random.randint(15, 20)
     work_start = "09:00"
@@ -55,8 +55,11 @@ class AutoClickerApp:
         self.root.title("Автокликер для Telegram")
 
         self.devices = [
-            {"host": "192.168.10.121", "port": 5555},
-             {"host": "192.168.10.123", "port": 5555},
+            # {"host": "192.168.10.121", "port": 5555},
+            #  {"host": "192.168.10.123", "port": 5555},
+            {"host": "192.168.10.118", "port": 5556},
+            {"host": "192.168.10.119", "port": 5555}
+
             # Добавьте остальные устройства здесь
         ]
 
@@ -118,8 +121,8 @@ class AutoClickerApp:
         # Настройки
         host = device_info["host"]
         port = device_info["port"]
-        private_key_path = "./adbkey"  # Путь к закрытому ключу
-        public_key_path = "./adbkey.pub"  # Путь к открытому ключу
+        private_key_path = "adbkey"  # Путь к закрытому ключу
+        public_key_path = "adbkey.pub"  # Путь к открытому ключу
 
         device = connect_device(host, port, private_key_path, public_key_path)
         if device is None:
@@ -133,19 +136,21 @@ class AutoClickerApp:
             if params["work_start"] <= current_time <= params["work_end"]:
                 # Открытие Телеграм
                 device.shell('am start -n org.telegram.messenger/org.telegram.ui.LaunchActivity')
-                time.sleep(5)
-                tap(device, 1015, 138)  # Координаты для кнопки поиск
-                time.sleep(3)
-                device.shell('input text "MDAO Telegram Wallet"')
-                time.sleep(3)
-                tap(device, 482, 526)  # Открытие первого результата в поиске
-                # Нажатие на кнопку для открытия мини-приложения в боте
-                tap(device, 787, 2081)  # Пример координат кнопки внутри бота
+                time.sleep(7)  # Ожидание
 
+                tap(device, 681, 121)  # Координаты для кнопки поиск
+                time.sleep(7)  # Ожидание
+
+                device.shell('input text "MDAO Telegram Wallet"')
+                time.sleep(7)  # Ожидание
+                tap(device, 201, 233)  # Открытие первого результата в поиске
+                time.sleep(5)
+                # Нажатие на кнопку для открытия мини-приложения в боте
+                tap(device, 406, 1390)  # Пример координат кнопки внутри бота
                 time.sleep(random_delay(params["delay_min"], params["delay_max"]))  # Ожидание
 
                 # Нажатие на кнопку "ЗАБРАТЬ"
-                button_x, button_y = 190, 730  # Пример координат кнопки "ЗАБРАТЬ"   # TODO: массив с координатами
+                button_x, button_y = 259, 561  # Пример координат кнопки "ЗАБРАТЬ"   # TODO: массив с координатами
                                                                                 # TODO: для рандомного нажатия  Вставить сюда
                 tap(device, button_x, button_y)
 
@@ -153,13 +158,13 @@ class AutoClickerApp:
                 time.sleep(random_delay(params["delay_min"], params["delay_max"]))
 
                 # Верстак
-                verstak_button_x, verstak_button_y = 609, 1920  # Координаты верстака
+                verstak_button_x, verstak_button_y = 409, 1327  # Координаты верстака
                 tap(device, verstak_button_x, verstak_button_y)
 
                 # Рандомная задержка
                 time.sleep(random_delay(params["delay_min"], params["delay_max"]))
 
-                verstak_upgrade_x, verstak_upgrade_y = 430, 2116  # Кнопка повышения уровня
+                verstak_upgrade_x, verstak_upgrade_y = 246, 1390  # Кнопка повышения уровня
                 tap(device, verstak_upgrade_x, verstak_upgrade_y)
 
                 # Рандомная задержка
