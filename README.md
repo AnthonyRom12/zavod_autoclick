@@ -29,7 +29,7 @@ bash
 4. Установите необходимые зависимости:
    
 bash
-   pip install -r requirements.txt
+   `pip install -r requirements.txt`
   
 
 ## Использование
@@ -39,7 +39,7 @@ bash
 2. Запустите программу:
    
 bash
-   python main.py
+   `python main.py`
   
 
 3. Откроется интерфейс приложения. Введите `Device ID` и `Serial Number` вашего устройства и нажмите "Добавить Устройство".
@@ -63,7 +63,7 @@ bash
 1. Откройте приложение:
    
 bash
-   python main.py
+   `python main.py`
   
 
 2. Введите `Device ID` и `Serial Number`:
