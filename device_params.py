@@ -11,7 +11,7 @@ def generate_device_params():
     start_delay_min = random.randint(10, 15)
     start_delay_max = random.randint(15, 20)
     work_start = "09:00"
-    work_end = "21:00"
+    work_end = "23:50"
 
     return {
         "delay_min": delay_min,
