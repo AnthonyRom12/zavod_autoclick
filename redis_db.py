@@ -15,3 +15,6 @@ class RedisDB:
     def device_exists(self, serial_number):
         devices = self.get_all_devices()
         return serial_number in devices.values()  # serial_number.encode()
+
+    def delete_device(self, device_id):
+        self.client.hdel('devices', device_id)

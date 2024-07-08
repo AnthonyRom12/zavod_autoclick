@@ -31,7 +31,7 @@ class AutoClickerApp:
 
     def create_interface(self):
         columns = (
-            "Device_ID", "Serial Number", "Delay Min", "Delay Max",
+            "Device_ID", "Serial Number","Status", "Delay Min", "Delay Max",
             "Start Delay Min", "Start Delay Max", "Work Start", "Work End"
         )
         self.tree = ttk.Treeview(self.root, columns=columns, show='headings')
@@ -61,7 +61,10 @@ class AutoClickerApp:
         self.stop_button = tk.Button(self.root, text="Остановить", command=self.stop_autoclicker)
         self.stop_button.pack(pady=10)
 
-        self.next_run_delay_label = tk.Label(self.root, text="Следующий пуск: N/A")
+        self.delete_device_button = tk.Button(self.root, text="Удалить", command=self.delete_selected_device)
+        self.delete_device_button.pack(pady=10)
+
+        self.next_run_delay_label = tk.Label(self.root, text="Следующий пуск: ")
         self.next_run_delay_label.pack(side=tk.LEFT, padx=10, pady=10)
 
     def log(self, message):
@@ -72,8 +75,9 @@ class AutoClickerApp:
 
     def check_devices(self):
         connected_devices = self.device_manager.get_connected_devices()
+        connected_serial_numbers = [device for device in connected_devices]
         all_devices = self.device_manager.get_all_devices()
-        for serial_number in connected_devices:
+        for serial_number in connected_serial_numbers:  # connected_devices
             # serial_number = serial_number  # .decode('utf-8')
             if not self.device_manager.device_exists(serial_number):
                 self.prompt_add_device(serial_number)
@@ -81,6 +85,18 @@ class AutoClickerApp:
                 device_id = self.device_manager.get_device_id(serial_number)
                 self.add_device(device_id, serial_number)
                 self.logger.log("Соедененные устройства автоматически добавлены.")
+                self.add_device(device_id, serial_number, "Connected")    # <-------
+            self.devices = [device for device in self.devices if device["serial_number"] in connected_serial_numbers]
+            self.device_params = [param for param in self.device_params if
+                                  param["serial_number"] in connected_serial_numbers]           # <--------
+
+        connected_devices = self.device_manager.get_connected_devices()
+        connected_serial_numbers = [device for device in connected_devices]
+
+        for device in self.devices:
+            if device["serial_number"] not in connected_serial_numbers:
+                device["status"] = "Disconnected"
+                self.update_device_status(device["serial_number"], "Disconnected")
 
         # connected_devices = ADBInterface.get_connected_device()
         # for device in connected_devices:
@@ -119,12 +135,13 @@ class AutoClickerApp:
             params = generate_device_params()  # {k.decode('utf-8'): v.decode('utf-8') for k, v in device[
             # 'params'].items()}
 
-            self.devices.append({"device_id": device_id, "serial_number": serial_number})
+            self.devices.append({"device_id": device_id, "serial_number": serial_number, "status": "Connected"})   # <---
             self.device_params.append({"device_id": device_id, "serial_number": serial_number, **params})
 
             self.tree.insert("", "end", values=(
                 device_id,
                 serial_number,
+                "Connected",                 # <-----------
                 params["delay_min"],
                 params["delay_max"],
                 params["start_delay_min"],
@@ -135,15 +152,28 @@ class AutoClickerApp:
 
             self.logger.log(f"Устройство {device_id} с серийным номером {serial_number} добавлено.")
 
-    def add_device(self, device_id, serial_number):
+    def update_device_status(self, serial_number, status):
+        for item in self.tree.get_children():
+            values = self.tree.item(item, "values")
+            if values[1] == serial_number:
+                self.tree.item(item, values=(values[0], values[1], status, *values[3:]))
+                if status == "Connected":
+                    self.tree.tag_configure('connected', background='green')
+                    self.tree.item(item, tags=('connected',))
+                else:
+                    self.tree.tag_configure('disconnected', background='red')
+                    self.tree.item(item, tags=('disconnected',))
+
+    def add_device(self, device_id, serial_number, status="Connected"):
         if device_id and serial_number:
             params = generate_device_params()
-            self.devices.append({"device_id": device_id, "serial_number": serial_number})
+            self.devices.append({"device_id": device_id, "serial_number": serial_number, "status": status})
             self.device_params.append({"device_id": device_id, "serial_number": serial_number, **params})
 
             self.tree.insert("", "end", values=(
                 device_id,
                 serial_number,
+                status,
                 params["delay_min"],
                 params["delay_max"],
                 params["start_delay_min"],
@@ -151,6 +181,12 @@ class AutoClickerApp:
                 params["work_start"],
                 params["work_end"]
             ))
+            if status == "Connected":
+                self.tree.tag_configure('connected', background='green')
+                self.tree.item(self.tree.get_children()[-1], tags=('connected',))
+            else:
+                self.tree.tag_configure('disconnected', background='red')
+                self.tree.item(self.tree.get_children()[-1], tags=('disconnected',))
             self.device_id_entry.delete(0, tk.END)
             self.serial_number_entry.delete(0, tk.END)
 
@@ -165,21 +201,27 @@ class AutoClickerApp:
 
     def load_devices_from_db(self):
         devices = self.device_manager.get_all_devices()
+        connected_serial_numbers = [device for device in self.device_manager.get_connected_devices()]
         for device_id, serial_number in devices.items():
             # device_id = device['device_id'].decode('utf-8')
-            # serial_number = device['serial_number']
-            self.add_device_to_ui(serial_number)
+            if serial_number in connected_serial_numbers:
+
+                self.add_device_to_ui(serial_number)
+
+            else:
+                self.logger.log(f"Устройство с серийным номером {serial_number} не получилось загрузить из БД.")
 
     def start_autoclicker(self):
         self.running_event.set()
         self.threads = []
 
         for device, params in zip(self.devices, self.device_params):
-            autoclicker = AutoClicker(device["serial_number"], params, self.logger.log)
-            t = Thread(target=autoclicker.run, args=(self.running_event,))
-            self.threads.append(t)
-            t.start()
-            self.logger.log(f"Autoclicker started for device {device['device_id']}.")
+            if device["serial_number"] in [d for d in self.device_manager.get_connected_devices()]:
+                autoclicker = AutoClicker(device["serial_number"], params, self.logger.log)
+                t = Thread(target=autoclicker.run, args=(self.running_event,))
+                self.threads.append(t)
+                t.start()
+                self.logger.log(f"Autoclicker started for device {device['device_id']}.")
 
     def stop_autoclicker(self):
         self.running_event.clear()
@@ -191,4 +233,13 @@ class AutoClickerApp:
         hours, remainder = divmod(delay, 3600)
         minutes, seconds = divmod(remainder, 60)
         self.next_run_delay_label.config(text=f"Следующий пуск: {int(hours)}ч {int(minutes)}м {int(seconds)}с")
+
+    def delete_selected_device(self):
+        selected_item = self.tree.selection()[0]
+        if selected_item:
+            device_id = self.tree.item(selected_item, 'values')[0]
+            serial_number = self.tree.item(selected_item, 'values')[1]
+            self.device_manager.delete_device(device_id)
+            self.tree.delete(selected_item)
+            self.logger.log(f"Устройство {device_id} с серийным номером {serial_number} удалено.")
 

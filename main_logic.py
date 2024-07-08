@@ -14,12 +14,12 @@ class AutoClicker:
         self.serial_number = serial_number
         self.params = params
         self.logger = logger
-        self.button_coodinates = [(306, 824), (300, 824),
+        self.button_coordinates = [(306, 824), (300, 824),
                                   (290, 824)]  # [(259, 561), (262, 550), (250, 560), (245, 555),
         # (248, 564)]  # координаты кнопки "ЗАБРАТЬ"
 
     def get_random_coordinates(self):
-        return random.choice(self.button_coodinates)
+        return random.choice(self.button_coordinates)
 
     def run(self, running_event):
         self.logger(f"Соединение с устройством {self.serial_number} ...")
@@ -88,7 +88,7 @@ class AutoClicker:
                 # Повтор через каждые 2 часа + рандомная задержка 15-20 минут
                 next_run_delay = 2 * 3600 + random_delay(self.params["start_delay_min"] * 60,
                                                          self.params["start_delay_max"] * 60)
-                self.logger.log(f"Следующий запуск через {next_run_delay / 60:.2f} минут.")  # Update
+                self.logger(f"Следующий запуск через {next_run_delay / 60:.2f} минут.")  # Update
             else:
                 self._save_sleep(60, running_event)
 

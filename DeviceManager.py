@@ -25,3 +25,7 @@ class DeviceManager:
             if sn == serial_number:
                 return device_id
         return None
+
+    def delete_device(self, device_id):
+        self.db.delete_device(device_id)
+        self.logger.log(f"Устройство {device_id} удалено из БД.")
