@@ -1,5 +1,6 @@
 import tkinter as tk
-from gui import AutoClickerApp, DeviceManager
+from gui import AutoClickerApp
+from DeviceManager import DeviceManager
 from redis_db import RedisDB
 from logger import Logger
 
@@ -11,5 +12,5 @@ if __name__ == '__main__':
     logger_widget.pack(fill=tk.BOTH, expand=True, pady=10)
     logger = Logger(logger_widget)
     device_manager = DeviceManager(db, logger)
-    app = AutoClickerApp(root, device_manager, logger)
+    app = AutoClickerApp(root, device_manager)
     root.mainloop()

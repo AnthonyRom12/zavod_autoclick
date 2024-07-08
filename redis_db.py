@@ -9,7 +9,8 @@ class RedisDB:
         self.client.hset('devices', device_id, serial_number)
 
     def get_all_devices(self):
-        return self.client.hgetall('devices')
+        devices = self.client.hgetall('devices')
+        return {k.decode('utf-8'): v.decode('utf-8') for k, v in devices.items()}  # .hgetall('devices')
 
     def device_exists(self, serial_number):
         devices = self.get_all_devices()
